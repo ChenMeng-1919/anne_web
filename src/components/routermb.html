@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>ElementUi</title>
+    <!-- 引入样式 -->
+    <!--绝对路径，项目启动后可以访问-->
+    <link rel="stylesheet" href="/css/elementui.css">
+    <script src="/js/vue.js"></script>
+    <script src="/js/vue-router.js"></script>
+    <script src="/js/elementui.js"></script>
+    <script src="/js/axios.min.js"></script>
+
+
+</head>
+<body>
+<div id="app">
+
+    <!--1.通过使用标签方式直接切换路由菜单-->
+    <router-link to="/monthtuberculosis">月结核对(link)</router-link>
+    <router-link to="/emps">员工管理(link)</router-link>
+    <a href="#/monthtuberculosis">月结核对(a)</a>
+    <a href="#/emps">员工管理(a)</a>
+    <router-view></router-view>
+
+    <!--2.通过js代码的方式动态切换路由 this.$router.push("切换的路由路径")-->
+    <button @click="test">测试切换路由</button>
+
+
+    <!--切换路由-->
+    <!--1.获取?后传递参数 this.$route.query.?后面参数key -->
+    <router-link to="/emps?deptid=21&name=张三">用户管理参数获取</router-link>
+    <!--2.后去路由路径中参数 rest 方式参数获取 this.$route.param.路径中别名 -->
+    <router-link to="/emps/11/李四">员工管理</router-link>
+</div>
+</body>
+<template id="monthtuberculosis">
+    <div>
+        <el-row>
+            <el-col :offset="10">
+                <h1 style="color: #3a8ee6">管会月结数据核对</h1>
+            </el-col>
+        </el-row>
+        <el-row>
+            <el-col :span="8" :offset="10">
+                <div style="width: 100%;">
+                    <el-select v-model="selectValue" filterable placeholder="请选择" clearable>
+                        <el-option
+                                v-for="item in options"
+                                :key="item.value"
+                                :label="item.label"
+                                :value="item.value">
+                        </el-option>
+                    </el-select>
+                </div>
+            </el-col>
+        </el-row>
+        <el-row>
+            <el-col :span="8" :offset="10">
+                <el-upload
+                        class="upload-demo"
+                        :action="selectValue"
+                        :on-preview="handlePreview"
+                        :on-remove="handleRemove"
+                        :before-remove="beforeRemove"
+                        :limit="1"
+                        :on-exceed="handleExceed"
+                        :file-list="fileList"
+                        mul
+                        :on-success="successdo"
+                        style="width: 100%;">
+                    <el-button size="small" type="primary" style=" margin-top: 20px">点击上传</el-button>
+                    <div slot="tip" class="el-upload__tip">上传excel数据源</div>
+                </el-upload>
+            </el-col>
+        </el-row>
+    </div>
+</template>
+
+<script>
+    //定义局部用户列表组件配置对象
+    const monthtuberculosis = {
+        template: '#monthtuberculosis',//用来定义组件html内容
+        data() {
+            return {
+                options: [{
+                    value: '/uploadCheckOrg',
+                    label: '机构核对'
+                }, {
+                    value: '/uploadcheckCBZX',
+                    label: '成本中心核对'
+                }, {
+                    value: '/uploadcheckCBZXSX',
+                    label: '成本中心属性核对'
+                }, {
+                    value: '/checkAccount',
+                    label: '新科目核对'
+                }, {
+                    value: '/filterAccount',
+                    label: '新科目核对结果过滤'
+                }, {
+                    value: '/addAccount',
+                    label: '新增科目核对'
+                }, {
+                    value: '/addProd',
+                    label: '新增产品核对'
+                }, {
+                    value: '/mtobCheck',
+                    label: '总分核对'
+                }, {
+                    value: '/uploadcheckAccountProductMapping',
+                    label: '科目产品映射'
+                }, {
+                    value: '/uploadcheckAccountLobMapping',
+                    label: '科目条线映射'
+                }, {
+                    value: '/uploadcheckCBZXSX',
+                    label: '源系统产品映射'
+                }, {
+                    value: '/uploadcheckCBZXSX',
+                    label: '源系统条线映射'
+                }, {
+                    value: '/orgChange',
+                    label: '机构变更'
+                }],
+                selectValue: '',
+                fileList: [],
+                fileUUID: ''
+            }
+
+        },
+        methods: {
+
+            handleRemove(file, fileList) {
+                console.log(file, fileList);
+            },
+            handlePreview(file) {
+                console.log(file);
+            },
+            handleExceed(files, fileList) {
+                this.$message.warning(`当前限制选择 1 个文件，本次选择了 ${files.length} 个文件，共选择了 ${files.length + fileList.length} 个文件`);
+            },
+            beforeRemove(file, fileList) {
+                return this.$confirm(`确定移除 ${file.name}？`);
+            },
+            successdo(response, file, fileList) {
+                this.fileUUID = response;
+                console.log(this.fileUUID)
+
+                axios({
+                    method: "get",
+                    url: "http://localhost:8080/getFileById",
+                    params: {
+                        fileUUID: this.fileUUID
+                    },
+                    /*data: this.fileUUID,*/
+                    responseType: 'blob'
+                }).then(res => {
+                    const fileName = res.headers['content-disposition'].match(
+                        /filename=(.*)/
+                    )[1]
+                    console.log(res)
+                    console.log(res.headers)
+                    var blob = new Blob([res.data], {type: "application/octet-stream"});
+                    if (window.navigator.msSaveOrOpenBlob) {//msSaveOrOpenBlob方法返回bool值
+                        navigator.msSaveBlob(blob, decodeURI(fileName));//本地保存
+                    } else {
+                        var link = document.createElement('a');//a标签下载
+                        link.href = window.URL.createObjectURL(blob);
+                        link.download = decodeURI(fileName);
+                        link.click();
+                        window.URL.revokeObjectURL(link.href);
+                    }
+                });
+            }
+        },
+    };
+    const emps = {
+        template: "<div><h3>员工管理</h3><table border='1'><tr><th>编号</th><th>姓名</th><th>年龄</th><th>生日</th><th>操作</th></tr></table></div>"
+        ,
+        methods: {
+            test() {
+                console.log(this.$route.query.deptid);
+                console.log(this.$route.query.name);
+                //this.$router.push("/emps");// 代表切换路由路径
+                //this.$router.push({path:'/users'});//路径方式切换路由
+                //this.$router.push({name:"emps"});//名称方式切换路由   [推荐]
+                this.$router.push({name: "emps"});//名称方式切换路由   [推荐]
+            },
+
+        }, created() {
+            //获取路由路径中参数  1.获取queryString(url?deptid=21)中传递参数
+            //this.$route 当前路由对象
+            //this.$router 路由管理器对象
+            console.log("deptid: ", this.$route.query.deptid);
+            console.log("name: ", this.$route.query.name);
+        }
+    };
+    const notfound = {
+        template: "<div><h1>当前页面访问路径错误</h1></div>"
+    };
+    //创建路由对象并定义路由规则
+    const router = new VueRouter({
+        routes: [
+            {path: '/monthtuberculosis', name: "monthtuberculosis", component: monthtuberculosis}, //用来定义具体的某个组件路由规则  path: 用来指定对应请求路径  component:指定路径对应的组件
+            {path: '/emps', name: "emps", component: emps},
+            {path: '/', redirect: '/monthtuberculosis'},
+            {path: '*', component: notfound},
+        ] //用来定义一些列规则
+    });
+    var vm = new Vue({
+        el: "#app",
+        data() {
+            return {}
+        },
+        methods: {
+            test() {
+                console.log("test");
+                console.log(this);
+                //this.$router.push("/emps");// 代表切换路由路径
+                //this.$router.push({path:'/users'});//路径方式切换路由
+                //this.$router.push({name:"emps"});//名称方式切换路由   [推荐]
+                this.$router.push({name: "emps"});//名称方式切换路由   [推荐]
+            }
+        },
+        router: router,//用来注册路由配置
+    })
+</script>
+</html>

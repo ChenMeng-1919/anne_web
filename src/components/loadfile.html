@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>loadfile</title>
+    <!-- 引入样式 -->
+    <!--绝对路径，项目启动后可以访问-->
+    <link rel="stylesheet" href="/css/elementui.css">
+    <script src="/js/vue.js"></script>
+    <script src="/js/elementui.js"></script>
+    <script src="/js/axios.min.js"></script>
+
+
+</head>
+<body>
+<div id="app">
+    <loadfile></loadfile>
+</div>
+</body>
+
+<script>
+    //定义局部用户列表组件配置对象
+    const loadfile = {
+        template: "<div>    <el-row>\n" +
+            "        <el-col :offset=\"10\">\n" +
+            "            <h1 style=\"color: #3a8ee6\">管会月结数据核对</h1>\n" +
+            "        </el-col>\n" +
+            "    </el-row>\n" +
+            "    <el-row>\n" +
+            "        <el-col :span=\"8\" :offset=\"10\">\n" +
+            "            <div style=\"width: 100%;\">\n" +
+            "                <el-select v-model=\"selectValue\" filterable placeholder=\"请选择\" clearable>\n" +
+            "                    <el-option\n" +
+            "                            v-for=\"item in options\"\n" +
+            "                            :key=\"item.value\"\n" +
+            "                            :label=\"item.label\"\n" +
+            "                            :value=\"item.value\">\n" +
+            "                    </el-option>\n" +
+            "                </el-select>\n" +
+            "            </div>\n" +
+            "        </el-col>\n" +
+            "    </el-row>\n" +
+            "    <el-row>\n" +
+            "        <el-col :span=\"8\" :offset=\"10\">\n" +
+            "\n" +
+            "            <el-button size=\"small\" type=\"primary\" @click=\"successdo\">点击下载</el-button>\n" +
+            "\n" +
+            "        </el-col>\n" +
+            "    </el-row></div>",//用来定义组件html内容
+        data() {
+            return {
+                options: [{
+                    value: '/uploadCheckOrg',
+                    label: '机构核对'
+                }, {
+                    value: '/uploadcheckCBZX',
+                    label: '成本中心核对'
+                }, {
+                    value: '/uploadcheckCBZXSX',
+                    label: '成本中心属性核对'
+                }, {
+                    value: '/checkAccount',
+                    label: '新科目核对'
+                }, {
+                    value: '/filterAccount',
+                    label: '新科目核对结果过滤'
+                }, {
+                    value: '/addAccount',
+                    label: '新增科目核对'
+                }, {
+                    value: '/addProd',
+                    label: '新增产品核对'
+                }, {
+                    value: '/mtobCheck',
+                    label: '总分核对'
+                }, {
+                    value: '/uploadcheckAccountProductMapping',
+                    label: '科目产品映射'
+                }, {
+                    value: '/uploadcheckAccountLobMapping',
+                    label: '科目条线映射'
+                }, {
+                    value: '/uploadcheckCBZXSX',
+                    label: '源系统产品映射'
+                }, {
+                    value: '/uploadcheckCBZXSX',
+                    label: '源系统条线映射'
+                }, {
+                    value: '/orgChange',
+                    label: '机构变更'
+                }],
+                selectValue: '',
+                fileList: []
+            };
+        },
+        methods: { //用来给当前组件定义一系列事件
+            handleRemove(file, fileList) {
+                console.log(file, fileList);
+            },
+            handlePreview(file) {
+                console.log(file);
+            },
+            handleExceed(files, fileList) {
+                this.$message.warning(`当前限制选择 1 个文件，本次选择了 ${files.length} 个文件，共选择了 ${files.length + fileList.length} 个文件`);
+            },
+            beforeRemove(file, fileList) {
+                return this.$confirm(`确定移除 ${file.name}？`);
+            },
+            successdo(response, file, fileList) {
+                axios({
+                    method: "get",
+                    url: "http://localhost:8080/loadfile",
+                    data: "",
+                    responseType: 'blob'
+                }).then(res => {
+                    var blob = new Blob([res.data], {type: "application/vnd.ms-excel"});
+                    if (window.navigator.msSaveOrOpenBlob) {//msSaveOrOpenBlob方法返回bool值
+                        navigator.msSaveBlob(blob, "下载文件.xlsx");//本地保存
+                    } else {
+                        var link = document.createElement('a');//a标签下载
+                        link.href = window.URL.createObjectURL(blob);
+                        link.download = "下载文件.xlsx";
+                        link.click();
+                        window.URL.revokeObjectURL(link.href);
+                    }
+                });
+            }
+        },
+    };
+    var vm = new Vue({
+            el: "#app",
+            data() {
+                return {}
+            },
+            methods: {},
+            components: { //在这里注册组件都为局部组件
+                loadfile,//注册组件  等价于 users:users,
+            }
+        }
+    )
+</script>
+</html>

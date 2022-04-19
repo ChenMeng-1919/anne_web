@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>sql查询</title>
+    <!--绝对路径，项目启动后可以访问-->
+    <link rel="stylesheet" href="/css/elementui.css">
+    <script src="/js/vue.js"></script>
+    <script src="/js/vue-router.js"></script>
+    <script src="/js/elementui.js"></script>
+    <script src="/js/axios.min.js"></script>
+
+
+</head>
+<body>
+<div id="app">
+
+    <router-view></router-view>
+
+</div>
+</body>
+<template id="querydata">
+    <div>
+        <el-form :model="formInline">
+            <el-form-item>
+                <el-row>
+                    <el-col :span="16" :offset="4">
+                        <el-input
+                                type="textarea"
+                                :autosize="{ minRows: 6}"
+                                placeholder="请输入需要查询的sql"
+                                v-model="formInline.sqlstring"
+                                :clearable="true"
+                                ref="inputs">
+                        </el-input>
+                    </el-col>
+                </el-row>
+            </el-form-item>
+
+            <el-form-item>
+                <el-row>
+                    <el-col :offset="17">
+                        <el-button type="primary" @click="onSubmit" :loading="queryState">查询</el-button>
+                        <el-button type="primary" @click="clears">清空</el-button>
+                        <el-button type="primary" @click="download">下载</el-button>
+                    </el-col>
+                </el-row>
+            </el-form-item>
+        </el-form>
+
+        <el-table
+                :data="tableData"
+                height="450"
+                border
+                style="width: 100%"
+                ref="singleTable"
+                highlight-current-row
+        >
+            <!--            @current-change="handleCurrentChange"-->
+            <template v-if="tableData.length > 0">
+                <el-table-column v-for="(item,key) in tableData[0]"
+                                 :prop='key'
+                                 :label='key'>
+                </el-table-column>
+            </template>
+
+        </el-table>
+    </div>
+</template>
+<script>
+    //定义局部用户列表组件配置对象
+    const querydata = {
+        template: '#querydata',//用来定义组件html内容
+        data() {
+            return {
+                queryState: false,
+                formInline: {
+                    sqlstring: '',
+                },
+                tableData: [],
+                search: ''
+            }
+        },
+        methods: {
+            clears() {
+                this.$refs.inputs.clear();
+            },
+            onSubmit() {
+                this.queryState = true;
+                //发送登录请求
+                axios.post("http://localhost:8080/querydata", this.formInline).then(res => {
+                    this.queryState = false;
+                    this.tableData = res.data.data;
+                }).catch(res => {
+                    if (res.response.data.code == 500) {
+                        alert("服务端错误,请检查sql语句."+res.response.data.message)
+                        this.queryState = false;
+                    }
+                });
+
+            },
+            download() {
+                this.queryState = true;
+                axios({
+                    method: "get",
+                    url: "http://localhost:8080/downquerydata",
+                    params: {
+                        sqlstring: this.formInline.sqlstring
+                    },
+                    /*data: this.fileUUID,*/
+                    responseType: 'blob'
+                }).then(res => {
+                    const fileName = res.headers['content-disposition'].match(
+                        /filename=(.*)/
+                    )[1]
+                    this.queryState = false;
+                    console.log(res)
+                    console.log(res.headers)
+                    var blob = new Blob([res.data], {type: "application/octet-stream"});
+                    if (window.navigator.msSaveOrOpenBlob) {//msSaveOrOpenBlob方法返回bool值
+                        navigator.msSaveBlob(blob, decodeURI(fileName));//本地保存
+                    } else {
+                        var link = document.createElement('a');//a标签下载
+                        link.href = window.URL.createObjectURL(blob);
+                        link.download = decodeURI(fileName);
+                        link.click();
+                        window.URL.revokeObjectURL(link.href);
+                    }
+                });
+            },
+            handleEdit(index, row) {
+                console.log(index, row);
+            },
+            handleDelete(index, row) {
+                console.log(index, row);
+            }
+        },
+    };
+    const notfound = {
+        template: "<div><h1>当前页面访问路径错误</h1></div>"
+    };
+    //创建路由对象并定义路由规则
+    const router = new VueRouter({
+        routes: [
+            {path: '/querydata', name: "querydata", component: querydata}, //用来定义具体的某个组件路由规则  path: 用来指定对应请求路径  component:指定路径对应的组件
+            {path: '/', redirect: '/querydata'},
+            {path: '*', component: notfound},
+        ] //用来定义一些列规则
+    });
+
+    var vm = new Vue({
+            el: "#app",
+            data() {
+                return {}
+            },
+            methods: {},
+            router: router,//用来注册路由配置
+        }
+    )
+</script>
+</html>
