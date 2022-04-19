@@ -1,15 +1,24 @@
 import Vue from 'vue'
 import Router from 'vue-router'
-import HelloWorld from '@/components/HelloWorld'
+import prodtrace from "../components/prodtrace";
+import notfound from "../components/notfound";
 
 Vue.use(Router)
 
 export default new Router({
   routes: [
     {
+      path: '/prodtrace',
+      name: "prodtrace",
+      component: prodtrace
+    },
+    {
       path: '/',
-      name: 'HelloWorld',
-      component: HelloWorld
-    }
+      redirect: '/prodtrace'
+    },
+    {
+      path: '*',
+      component: notfound
+    },
   ]
 })
