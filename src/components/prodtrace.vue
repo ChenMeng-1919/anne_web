@@ -1,0 +1,540 @@
+<template>
+  <div>
+    <el-form :inline="true" :model="prodTraceForminLine" class="demo-form-inline">
+      <el-form-item label="期间">
+        <el-date-picker type="month" placeholder="选择期间" v-model="prodTraceForminLine.asOfDate"
+                        format="yyyy 年 MM 月"
+                        value-format="yyyy-MM-dd"
+                        style="width: 200px;"></el-date-picker>
+      </el-form-item>
+      <el-form-item label="机构">
+        <el-select
+          v-model="prodTraceForminLine.orgId"
+          placeholder="输入编码或名称"
+          clearable
+          :loading="orgIdloading"
+          filterable
+          remote
+          reserve-keyword
+          :remote-method="queryOrg"
+          style="width: 200px;">
+          <el-option
+            v-for="item in orgOptions"
+            :key="item.code"
+            :label="'['+item.code+']'+item.name"
+            :value="item.code">
+          </el-option>
+        </el-select>
+      </el-form-item>
+      <el-form-item label="条线">
+        <el-select
+          v-model="prodTraceForminLine.lobId"
+          placeholder="条线"
+          clearable
+          :loading="lobIdloading"
+          filterable
+          style="width: 200px;">
+          <el-option
+            v-for="item in lobOptions"
+            :key="item.code"
+            :label="'['+item.code+']'+item.name"
+            :value="item.code">
+          </el-option>
+        </el-select>
+      </el-form-item>
+      <el-form-item label="产品">
+        <el-select
+          v-model="prodTraceForminLine.prodId"
+          placeholder="产品"
+          clearable
+          :loading="prodIdloading"
+          filterable
+          style="width: 200px;">
+          <el-option
+            v-for="item in prodOptions"
+            :key="item.code"
+            :label="'['+item.code+']'+item.name"
+            :value="item.code">
+          </el-option>
+        </el-select>
+      </el-form-item>
+      <el-form-item>
+        <el-button type="primary" @click="getPage">查询</el-button>
+      </el-form-item>
+    </el-form>
+    <el-container>
+      <el-header height="40px" text-align: right>
+        <el-row :gutter="0">
+          <el-col :span="3">
+            <font color="#FFFFFF">成本分摊产品可追溯</font>
+          </el-col>
+          <el-col :span="1.3">
+            <el-button type="primary" icon="el-icon-delete" size="mini" @click="downResult">导出</el-button>
+          </el-col>
+        </el-row>
+      </el-header>
+      <el-main>
+        <el-table
+          v-loading="loading"
+          ref="singleTable"
+          :data="tableData"
+          border
+          highlight-current-row
+          :fit="true"
+          :row-class-name="tableRowClassName"
+          @current-change="lineChange"
+        >
+          <el-table-column
+            header-align="center"
+            type="index">
+          </el-table-column>
+          <el-table-column
+            header-align="center"
+            property="asOfDate"
+            label="期间"
+            min-width="100"
+          >
+          </el-table-column>
+          <el-table-column
+            header-align="center"
+            property="custAcctNo"
+            label="账户"
+            min-width="210"
+          >
+          </el-table-column>
+          <el-table-column
+            header-align="center"
+            property="orgL1"
+            label="一分机构编码"
+            min-width="120">
+          </el-table-column>
+          <el-table-column
+            header-align="center"
+            property="orgL1Name"
+            label="一分机构名称"
+            min-width="120"
+          >
+          </el-table-column>
+          <el-table-column
+            header-align="center"
+            property="orgL2"
+            label="二分机构编码"
+            min-width="120"
+          >
+          </el-table-column>
+          <el-table-column
+            header-align="center"
+            property="orgL2Name"
+            label="二分机构名称"
+            min-width="120"
+          >
+          </el-table-column>
+          <el-table-column
+            header-align="center"
+            property="orgL3"
+            label="一支机构编码"
+            min-width="120"
+          >
+          </el-table-column>
+          <el-table-column
+            header-align="center"
+            property="orgL3Name"
+            label="一支机构名称"
+            min-width="120"
+          >
+          </el-table-column>
+          <el-table-column
+            header-align="center"
+            property="orgId"
+            label="网点机构编码"
+            min-width="120"
+          >
+          </el-table-column>
+          <el-table-column
+            header-align="center"
+            property="orgName"
+            label="网点机构名称"
+            min-width="120"
+          >
+          </el-table-column>
+          <el-table-column
+            header-align="center"
+            property="lobId"
+            label="条线编码">
+          </el-table-column>
+          <el-table-column
+            header-align="center"
+            property="lobName"
+            label="条线名称"
+            min-width="260">
+          </el-table-column>
+          <el-table-column
+            header-align="center"
+            property="prodId"
+            label="产品编码"
+            min-width="110">
+          </el-table-column>
+          <el-table-column
+            header-align="center"
+            property="prodName"
+            label="产品名称"
+            min-width="260">
+          </el-table-column>
+
+          <el-table-column label="账户数据" header-align="center">
+            <el-table-column
+              header-align="center"
+              prop="expensesSum"
+              label="分摊成本合计"
+              min-width="120">
+            </el-table-column>
+            <el-table-column
+              header-align="center"
+              prop="perDriver1"
+              label="权重前：资产/负债日均余额"
+              min-width="220"
+            >
+            </el-table-column>
+            <el-table-column
+              header-align="center"
+              prop="perDriver2"
+              label="权重前：自营收入"
+              min-width="160">
+            </el-table-column>
+            <el-table-column
+              header-align="center"
+              prop="prodRatioSum"
+              label="权重">
+            </el-table-column>
+            <el-table-column
+              header-align="center"
+              prop="driver1"
+              label="权重后：资产/负债日均余额"
+              min-width="220">
+            </el-table-column>
+            <el-table-column
+              header-align="center"
+              prop="driver2"
+              label="权重后：自营收入"
+              min-width="140">
+            </el-table-column>
+          </el-table-column>
+
+          <el-table-column label="总行分摊成本" header-align="center">
+            <el-table-column
+              header-align="center"
+              prop="l0SumCost"
+              label="条线待分摊成本"
+              min-width="140">
+            </el-table-column>
+            <el-table-column
+              header-align="center"
+              prop="l0SumDaily1"
+              label="权重后：资产/负债日均余额合计"
+              min-width="260">
+            </el-table-column>
+            <el-table-column
+              header-align="center"
+              prop="l0SumDaily2"
+              label="权重后：自营收入合计"
+              min-width="180">
+            </el-table-column>
+            <el-table-column
+              header-align="center"
+              prop="l0Expenses"
+              label="分摊成本"
+              min-width="120">
+            </el-table-column>
+          </el-table-column>
+
+          <el-table-column label="一级分行本部分摊成本" header-align="center">
+            <el-table-column
+              header-align="center"
+              prop="l1SumCost"
+              label="条线待分摊成本"
+              min-width="200">
+            </el-table-column>
+            <el-table-column
+              header-align="center"
+              prop="l1SumDaily1"
+              label="权重后：资产/负债日均余额合计"
+              min-width="260">
+            </el-table-column>
+            <el-table-column
+              header-align="center"
+              prop="l1SumDaily2"
+              label="权重后：自营收入合计"
+              min-width="180">
+            </el-table-column>
+            <el-table-column
+              header-align="center"
+              prop="l1Expenses"
+              label="分摊成本"
+              min-width="120">
+            </el-table-column>
+          </el-table-column>
+
+          <el-table-column label="二级分行本部分摊成本" header-align="center">
+            <el-table-column
+              header-align="center"
+              prop="l2SumCost"
+              label="条线待分摊成本"
+              min-width="140">
+            </el-table-column>
+            <el-table-column
+              header-align="center"
+              prop="l2SumDaily1"
+              label="权重后：资产/负债日均余额合计"
+              min-width="260">
+            </el-table-column>
+            <el-table-column
+              header-align="center"
+              prop="l2SumDaily2"
+              label="权重后：自营收入合计"
+              min-width="180">
+            </el-table-column>
+            <el-table-column
+              header-align="center"
+              prop="l2Expenses"
+              label="分摊成本"
+              min-width="120">
+            </el-table-column>
+          </el-table-column>
+
+          <el-table-column label="一级支行本部分摊成本" header-align="center">
+            <el-table-column
+              header-align="center"
+              prop="l3SumCost"
+              label="条线待分摊成本"
+              min-width="140">
+            </el-table-column>
+            <el-table-column
+              header-align="center"
+              prop="l3SumDaily1"
+              label="权重后：资产/负债日均余额合计"
+              min-width="260">
+            </el-table-column>
+            <el-table-column
+              header-align="center"
+              prop="l3SumDaily2"
+              label="权重后：自营收入合计"
+              min-width="180">
+            </el-table-column>
+            <el-table-column
+              header-align="center"
+              prop="l3Expenses"
+              label="分摊成本"
+              min-width="120">
+            </el-table-column>
+          </el-table-column>
+
+          <el-table-column label="网点分摊成本" header-align="center">
+            <el-table-column
+              header-align="center"
+              prop="l4SumCost"
+              label="条线待分摊成本"
+              min-width="140">
+            </el-table-column>
+            <el-table-column
+              header-align="center"
+              prop="l4SumDaily1"
+              label="权重后：资产/负债日均余额合计"
+              min-width="260">
+            </el-table-column>
+            <el-table-column
+              header-align="center"
+              prop="l4SumDaily2"
+              label="权重后：自营收入合计"
+              min-width="180">
+            </el-table-column>
+            <el-table-column
+              header-align="center"
+              prop="l4Expenses"
+              label="分摊成本"
+              min-width="120">
+            </el-table-column>
+          </el-table-column>
+        </el-table>
+
+      </el-main>
+      <el-footer height="50px">
+        <el-pagination
+          @size-change="handleSizeChange"
+          @current-change="handleCurrentChange"
+          :current-page="currentPage"
+          :page-sizes="[10, 20, 30, 50]"
+          :page-size="10"
+          background
+          prev-text="上一页"
+          next-text="下一页"
+          layout="total, sizes, prev, pager, next, jumper"
+          :total="PageCondition.pageCount">
+        </el-pagination>
+      </el-footer>
+    </el-container>
+  </div>
+</template>
+
+<script>
+export default {
+  name: "prodtrace",
+  data() {
+    return {
+      lobOptions: [],
+      orgOptions: [],
+      prodOptions: [],
+      orgIdloading: true,
+      lobIdloading: true,
+      prodIdloading: true,
+      loading: true,
+      tableData: [],
+
+      currentPage: 1,
+      currentRow: {},
+      PageCondition: {
+        page: 1,
+        rows: 10,
+        pageCount: 0,
+      },
+      prodTraceForminLine: {
+        asOfDate: '',
+        orgId: '',
+        lobId: '',
+        prodId: '',
+      },
+      loadingform: true,
+      //按钮下载链接
+      fileDownURL: '/ANNE_NEW/prodtrace/export.html',
+
+    }
+  },
+  methods: {
+    //获取单选选中的行信息
+    lineChange(currentRow) {
+      currentRow.className = 'tableSelectedRowBgColor';
+    },
+
+    tableRowClassName({row, rowIndex}) {
+      if (rowIndex === 1) {
+        return 'warning-row';
+      } else if (rowIndex === 3) {
+        return 'success-row';
+      }
+      return '';
+    },
+    //分页插件pageSize改变
+    handleSizeChange(pageSize) {
+      if (pageSize != null) {
+        this.PageCondition.rows = pageSize;
+      }
+      this.getPage();
+    },
+    //分页当前每页数据量变化
+    handleCurrentChange(currentRow) {
+      if (currentRow != null) {
+        this.PageCondition.page = currentRow;
+      }
+      //重新加载页面数据
+      this.getPage();
+    },
+    refreshData() {
+      this.getPage();
+    },
+    getPage() {
+      this.loading = true;
+      axios.post('/ANNE_NEW/prodtrace/page.html', this.PageCondition, {
+          params: this.prodTraceForminLine,
+        }
+      )
+        .then(res => {
+          this.tableData = res.data.list;
+          this.PageCondition.page = res.data.pageCurrent;
+          this.PageCondition.rows = res.data.pageSize;
+          this.PageCondition.pageCount = res.data.count;
+          this.loading = false;
+        });
+    },
+
+    //获取产品信息
+    queryOrg(query) {
+      if (query !== '') {
+        this.orgIdloading = true;
+        setTimeout(() => {
+          axios.post('/ANNE_NEW/field/member/fieldMemberCombox.html?code=ORG_ID&search=' + query)
+            .then(res => {
+              this.orgOptions = res.data.message;
+              this.orgIdloading = false;
+            });
+
+        }, 200);
+      } else {
+        this.orgOptions = [];
+      }
+    },
+    //获取条线信息
+    queryLob() {
+      axios.post('/ANNE_NEW/field/member/fieldMemberCombox.html?code=LOB_ID&level=3')
+        .then(res => {
+          this.lobOptions = res.data.message;
+          this.lobIdloading = false;
+        });
+    },
+    //获取产品信息
+    queryProd() {
+      axios.post('/ANNE_NEW/field/member/fieldMemberCombox.html?code=PROD_ID&level=6')
+        .then(res => {
+          this.prodOptions = res.data.message;
+          this.prodIdloading = false;
+        });
+    },
+    downResult() {
+      if ((this.prodTraceForminLine.asOfDate !== '' && this.prodTraceForminLine.asOfDate !== null) && (this.prodTraceForminLine.prodId !== '' || this.prodTraceForminLine.lobId !== '' || this.prodTraceForminLine.orgId !== '')) {
+        var link = document.createElement('a');//a标签下载
+        link.href = this.fileDown;
+        link.click();
+      } else {
+        this.$message({
+          message: '导出时请选择期间和任意一个筛选条件',
+          type: 'warning'
+        });
+      }
+      //window.location.href = this.fileDownURL+ '?asOfDate=' + this.prodTraceForminLine.asOfDate + '&orgId=' + this.prodTraceForminLine.orgId + '&lobId=' + this.prodTraceForminLine.lobId + '&prodId=' + this.prodTraceForminLine.prodId;
+    }
+  },
+  computed: { //用来书写计算相关方法  计算属性
+    fileDown() {  //计算方法  好处:只进行一次计算,多次使用时直接使用第一次计算之后缓存结果
+      return this.fileDownURL + '?asOfDate=' + this.prodTraceForminLine.asOfDate + '&orgId=' + this.prodTraceForminLine.orgId + '&lobId=' + this.prodTraceForminLine.lobId + '&prodId=' + this.prodTraceForminLine.prodId;
+    }
+  },
+  created() {
+    this.getPage();
+    this.queryOrg();
+    this.queryLob();
+    this.queryProd();
+  }
+}
+</script>
+
+<style scoped>
+.el-header {
+  background-color: #307ECC;
+  color: #333;
+  text-align: center;
+  line-height: 38px;
+}
+
+.el-footer {
+  background-color: #EFF3F8;
+  color: #333;
+  text-align: center;
+  line-height: 50px;
+}
+
+.el-button {
+  background: #6FB3E0;
+}
+
+.tableSelectedRowBgColor td {
+  background-color: #333333;
+}
+</style>
