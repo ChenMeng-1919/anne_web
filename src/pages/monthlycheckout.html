@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>loadfile</title>
+    <title>ElementUi</title>
     <!-- 引入样式 -->
     <!--绝对路径，项目启动后可以访问-->
     <link rel="stylesheet" href="/css/elementui.css">
@@ -14,39 +14,57 @@
 </head>
 <body>
 <div id="app">
-    <loadfile></loadfile>
+
+    <monthtuberculosis></monthtuberculosis>
+
 </div>
 </body>
-
+<template id="monthtuberculosis">
+    <div>
+        <el-row>
+            <el-col :offset="10">
+                <h1 style="color: #3a8ee6">管会月结数据核对</h1>
+            </el-col>
+        </el-row>
+        <el-row>
+            <el-col :span="8" :offset="10">
+                <div style="width: 100%;">
+                    <el-select v-model="selectValue" filterable placeholder="请选择" clearable>
+                        <el-option
+                                v-for="item in options"
+                                :key="item.value"
+                                :label="item.label"
+                                :value="item.value">
+                        </el-option>
+                    </el-select>
+                </div>
+            </el-col>
+        </el-row>
+        <el-row>
+            <el-col :span="8" :offset="10">
+                <el-upload
+                        class="upload-demo"
+                        :action="selectValue"
+                        :on-preview="handlePreview"
+                        :on-remove="handleRemove"
+                        :before-remove="beforeRemove"
+                        :limit="1"
+                        :on-exceed="handleExceed"
+                        :file-list="fileList"
+                        mul
+                        :on-success="successdo"
+                        style="width: 100%;">
+                <el-button size="small" type="primary" style=" margin-top: 20px">点击上传</el-button>
+                <div slot="tip" class="el-upload__tip">上传excel数据源</div>
+                </el-upload>
+            </el-col>
+        </el-row>
+    </div>
+</template>
 <script>
     //定义局部用户列表组件配置对象
-    const loadfile = {
-        template: "<div>    <el-row>\n" +
-            "        <el-col :offset=\"10\">\n" +
-            "            <h1 style=\"color: #3a8ee6\">管会月结数据核对</h1>\n" +
-            "        </el-col>\n" +
-            "    </el-row>\n" +
-            "    <el-row>\n" +
-            "        <el-col :span=\"8\" :offset=\"10\">\n" +
-            "            <div style=\"width: 100%;\">\n" +
-            "                <el-select v-model=\"selectValue\" filterable placeholder=\"请选择\" clearable>\n" +
-            "                    <el-option\n" +
-            "                            v-for=\"item in options\"\n" +
-            "                            :key=\"item.value\"\n" +
-            "                            :label=\"item.label\"\n" +
-            "                            :value=\"item.value\">\n" +
-            "                    </el-option>\n" +
-            "                </el-select>\n" +
-            "            </div>\n" +
-            "        </el-col>\n" +
-            "    </el-row>\n" +
-            "    <el-row>\n" +
-            "        <el-col :span=\"8\" :offset=\"10\">\n" +
-            "\n" +
-            "            <el-button size=\"small\" type=\"primary\" @click=\"successdo\">点击下载</el-button>\n" +
-            "\n" +
-            "        </el-col>\n" +
-            "    </el-row></div>",//用来定义组件html内容
+    const monthtuberculosis = {
+        template: '#monthtuberculosis',
         data() {
             return {
                 options: [{
@@ -90,10 +108,13 @@
                     label: '机构变更'
                 }],
                 selectValue: '',
-                fileList: []
-            };
+                fileList: [],
+                fileUUID: ''
+            }
+
         },
-        methods: { //用来给当前组件定义一系列事件
+        methods: {
+
             handleRemove(file, fileList) {
                 console.log(file, fileList);
             },
@@ -107,19 +128,30 @@
                 return this.$confirm(`确定移除 ${file.name}？`);
             },
             successdo(response, file, fileList) {
+                this.fileUUID = response;
+                console.log(this.fileUUID)
+
                 axios({
                     method: "get",
-                    url: "http://localhost:8080/loadfile",
-                    data: "",
+                    url: "http://localhost:8080/getFileById",
+                    params: {
+                        fileUUID: this.fileUUID
+                    },
+                    /*data: this.fileUUID,*/
                     responseType: 'blob'
                 }).then(res => {
-                    var blob = new Blob([res.data], {type: "application/vnd.ms-excel"});
+                    const fileName = res.headers['content-disposition'].match(
+                        /filename=(.*)/
+                    )[1]
+                    console.log(res)
+                    console.log(res.headers)
+                    var blob = new Blob([res.data], {type: "application/octet-stream"});
                     if (window.navigator.msSaveOrOpenBlob) {//msSaveOrOpenBlob方法返回bool值
-                        navigator.msSaveBlob(blob, "下载文件.xlsx");//本地保存
+                        navigator.msSaveBlob(blob, decodeURI(fileName));//本地保存
                     } else {
                         var link = document.createElement('a');//a标签下载
                         link.href = window.URL.createObjectURL(blob);
-                        link.download = "下载文件.xlsx";
+                        link.download = decodeURI(fileName);
                         link.click();
                         window.URL.revokeObjectURL(link.href);
                     }
@@ -128,15 +160,14 @@
         },
     };
     var vm = new Vue({
-            el: "#app",
-            data() {
-                return {}
-            },
-            methods: {},
-            components: { //在这里注册组件都为局部组件
-                loadfile,//注册组件  等价于 users:users,
-            }
+        el: "#app",
+        data() {
+            return {}
+        },
+        methods: {},
+        components: { //在这里注册组件都为局部组件
+            monthtuberculosis,//注册组件  等价于 users:users,
         }
-    )
+    })
 </script>
 </html>
