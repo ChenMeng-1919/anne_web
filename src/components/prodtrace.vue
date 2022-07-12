@@ -490,6 +490,10 @@ export default {
     downResult() {
       if ((this.prodTraceForminLine.asOfDate !== '' && this.prodTraceForminLine.asOfDate !== null) && (this.prodTraceForminLine.prodId !== '' || this.prodTraceForminLine.lobId !== '' || this.prodTraceForminLine.orgId !== '')) {
         var link = document.createElement('a');//a标签下载
+        /*var formElement = document.createElement('form');
+        var uploadFile = document.createElement('input');
+        uploadFile.setAttribute("type","file")
+        uploadFile.setAttribute("name","file")*/
         link.href = this.fileDown;
         link.click();
       } else {
