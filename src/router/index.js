@@ -10,7 +10,9 @@ import addIncomedisHead from "../components/manualincomedis/addIncomedisHead";
 import incomedisDetails from "../components/manualincomedis/incomedisDetails";
 import incomedisHead from "../components/manualincomedis/incomedisHead";
 import uploadFile from "../components/manualincomedis/uploadFile";
-import Editor from "../components/Editor";
+import Editor from "../components/sysnotices/Editor";
+import mainpage from "../components/sysnotices/mainpage";
+import detailpage from "../components/sysnotices/detailpage";
 
 Vue.use(Router)
 
@@ -67,8 +69,18 @@ export default new Router({
       component: Editor
     },
     {
+      path: '/mainpage',
+      name: "mainpage",
+      component: mainpage
+    },
+    {
+      path: '/detailpage',
+      name: "detailpage",
+      component: detailpage
+    },
+    {
       path: '/',
-      redirect: '/Editor'
+      redirect: '/mainpage'
     },
     {
       path: '*',
