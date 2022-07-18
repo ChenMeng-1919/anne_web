@@ -133,6 +133,7 @@
 </template>
 
 <script>
+
 export default {
   name: "mainpage",
   data() {
@@ -196,7 +197,7 @@ export default {
     },
     getPage() {
       this.loading = true;
-      axios.post('/ANNE_NEW/system/notices/data.html', this.PageCondition, {
+      this.axios.post('/ANNE_NEW/system/notices/data.html', this.PageCondition, {
           params: this.prodTraceForminLine,
         }
       )
@@ -214,7 +215,7 @@ export default {
       if (query !== '') {
         this.orgIdloading = true;
         setTimeout(() => {
-          axios.post('/ANNE_NEW/field/member/fieldMemberCombox.html?code=ORG_ID&search=' + query)
+          this.axios.post('/ANNE_NEW/field/member/fieldMemberCombox.html?code=ORG_ID&search=' + query)
             .then(res => {
               this.orgOptions = res.data.message;
               this.orgIdloading = false;
@@ -227,7 +228,7 @@ export default {
     },
     //获取条线信息
     queryLob() {
-      axios.post('/ANNE_NEW/field/member/fieldMemberCombox.html?code=LOB_ID&level=3')
+      this.axios.post('/ANNE_NEW/field/member/fieldMemberCombox.html?code=LOB_ID&level=3')
         .then(res => {
           this.lobOptions = res.data.message;
           this.lobIdloading = false;
@@ -235,7 +236,7 @@ export default {
     },
     //获取产品信息
     queryProd() {
-      axios.post('/ANNE_NEW/field/member/fieldMemberCombox.html?code=PROD_ID&level=6')
+      this.axios.post('/ANNE_NEW/field/member/fieldMemberCombox.html?code=PROD_ID&level=6')
         .then(res => {
           this.prodOptions = res.data.message;
           this.prodIdloading = false;
