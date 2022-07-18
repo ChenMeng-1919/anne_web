@@ -1,11 +1,15 @@
 <template>
   <div class="sceditor">
-    <Editor v-model="contentValue" :init="init" :disabled="disabled" :placeholder="placeholder" @onClick="onClick"/>
+    <el-form ref="form" :model="form" label-width="100px">
+      <el-form-item label="公告标题：">
+        <el-input v-model="form.name"></el-input>
+      </el-form-item>
+      <Editor v-model="form.contentValue" :init="init" :disabled="disabled" :placeholder="placeholder" @onClick="onClick"/>
+    </el-form>
   </div>
 </template>
 
 <script>
-//import API from "@/api";
 import Editor from '@tinymce/tinymce-vue'
 import tinymce from 'tinymce';
 import 'tinymce/themes/silver'
@@ -41,7 +45,7 @@ export default {
     },
     plugins: {
       type: [String, Array],
-      default: 'code image link preview table'
+      default: 'link preview table'
     },
     toolbar: {
       type: [String, Array],
@@ -52,11 +56,16 @@ export default {
   },
   data() {
     return {
+      form: {
+        name: '',
+        contentValue:this.modelValue
+      },
       init: {
         language_url: "/static/tinymce/langs/zh_CN.js",
         language: "zh_CN",
         skin_url: "/static/tinymce/skins/ui/oxide",
-        height: 770,
+        menubar: false,
+        height: 500,
         min_height: 770,
         max_height: 770,
         toolbar_mode: "wrap",
@@ -71,40 +80,7 @@ export default {
           const img = "data:image/jpeg;base64," + blobInfo.base64();
           success(img);
         }
-      },
-      // init: {
-      //   // language_url: 'tinymce/langs/zh_CN.js',
-      //   // language: 'zh_CN',
-      //   skin_url: 'tinymce/skins/ui/oxide',
-      //   content_css: "tinymce/skins/content/default/content.css",
-      //   menubar: true,
-      //   statusbar: true,
-      //   plugins: this.plugins,
-      //   toolbar: this.toolbar,
-      //   fontsize_formats: '12px 14px 16px 18px 20px 22px 24px 28px 32px 36px 48px 56px 72px',
-      //   height: this.height,
-      //   placeholder: this.placeholder,
-      //   branding: false,
-      //   resize: true,
-      //   elementpath: true,
-      //   // content_style: "",
-      //   /*images_upload_handler: async (blobInfo, success, failure) => {
-      //     const data = new FormData();
-      //     data.append("file", blobInfo.blob() ,blobInfo.filename());
-      //     try {
-      //       const res = await API.common.upload.post(data)
-      //       success(res.data.src)
-      //     }catch (error) {
-      //       failure("Image upload failed")
-      //     }
-      //   },*/
-      //   setup: function (editor) {
-      //     editor.on('init', function () {
-      //       this.getBody().style.fontSize = '14px';
-      //     })
-      //   }
-      // },
-      contentValue: this.modelValue
+      }
     }
   },
   watch: {
@@ -127,9 +103,4 @@ export default {
 </script>
 
 <style>
-.sceditor {
-  /*text-align: center;*/
-
-  height: 500px;
-}
 </style>
