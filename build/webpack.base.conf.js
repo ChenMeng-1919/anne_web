@@ -4,7 +4,7 @@ const utils = require('./utils')
 const config = require('../config')
 const vueLoaderConfig = require('./vue-loader.conf')
 
-function resolve (dir) {
+function resolve(dir) {
   return path.join(__dirname, '..', dir)
 }
 
@@ -35,6 +35,19 @@ module.exports = {
         test: /\.vue$/,
         loader: 'vue-loader',
         options: vueLoaderConfig
+      },
+      // {
+      //   test: require.resolve('tinymce/tinymce'),
+      //   loaders: [
+      //     'imports?this=>window',
+      //     'exports?window.tinymce'
+      //   ]
+      // },
+      {
+        test: /tinymce\/(themes|plugins)\//,
+        loaders: [
+          'imports?this=>window'
+        ]
       },
       {
         test: /\.js$/,

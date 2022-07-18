@@ -10,6 +10,7 @@ import addIncomedisHead from "../components/manualincomedis/addIncomedisHead";
 import incomedisDetails from "../components/manualincomedis/incomedisDetails";
 import incomedisHead from "../components/manualincomedis/incomedisHead";
 import uploadFile from "../components/manualincomedis/uploadFile";
+import Editor from "../components/Editor";
 
 Vue.use(Router)
 
@@ -61,8 +62,13 @@ export default new Router({
       component: prodtrace
     },
     {
+      path: '/Editor',
+      name: "Editor",
+      component: Editor
+    },
+    {
       path: '/',
-      redirect: '/querydata'
+      redirect: '/Editor'
     },
     {
       path: '*',

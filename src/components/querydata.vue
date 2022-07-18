@@ -35,13 +35,13 @@
       ref="singleTable"
       highlight-current-row
     >
-      <!--            @current-change="handleCurrentChange"-->
-      <template v-if="tableData.length > 0">
+                 <!-- @current-change="handleCurrentChange"-->
+    <!-- <template v-if="tableData.length > 0">
         <el-table-column v-for="(item,key) in tableData[0]"
                          :prop='key'
                          :label='key'>
         </el-table-column>
-      </template>
+      </template> -->
 
     </el-table>
   </div>
