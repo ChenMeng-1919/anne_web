@@ -1,10 +1,11 @@
 <template>
-  <div class="sceditor">
+  <div style="float: left; width: 100%;">
     <el-form ref="form" :model="form" label-width="100px">
       <el-form-item label="公告标题：">
         <el-input v-model="form.name"></el-input>
       </el-form-item>
-      <Editor v-model="form.contentValue" :init="init" :disabled="disabled" :placeholder="placeholder" @onClick="onClick"/>
+      <Editor v-model="form.contentValue" :init="init" :disabled="disabled" :placeholder="placeholder"
+              @onClick="onClick"/>
     </el-form>
   </div>
 </template>
@@ -58,12 +59,14 @@ export default {
     return {
       form: {
         name: '',
-        contentValue:this.modelValue
+        contentValue: this.modelValue
       },
       init: {
         language_url: "/static/tinymce/langs/zh_CN.js",
+        //language_url: "/ANNE_NEW/vueandele/sysnotices/tinymce/langs/zh_CN.js",
         language: "zh_CN",
         skin_url: "/static/tinymce/skins/ui/oxide",
+        //skin_url: "/ANNE_NEW/vueandele/sysnotices/tinymce/skins/ui/oxide",
         menubar: false,
         height: 500,
         min_height: 770,
