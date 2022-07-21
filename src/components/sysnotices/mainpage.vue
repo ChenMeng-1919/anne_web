@@ -1,62 +1,17 @@
 <template>
   <div>
-    <el-form :inline="true" :model="prodTraceForminLine" class="demo-form-inline">
+    <el-form :inline="true" :model="searchLine" class="demo-form-inline">
       <el-form-item label="期间">
-        <el-date-picker type="month" placeholder="选择期间" v-model="prodTraceForminLine.asOfDate"
+        <el-date-picker type="month" placeholder="选择期间" v-model="searchLine.asOfDate"
                         format="yyyy 年 MM 月"
                         value-format="yyyy-MM-dd"
                         style="width: 200px;"></el-date-picker>
       </el-form-item>
-      <el-form-item label="机构">
-        <el-select
-          v-model="prodTraceForminLine.orgId"
-          placeholder="输入编码或名称"
-          clearable
-          :loading="orgIdloading"
-          filterable
-          remote
-          reserve-keyword
-          :remote-method="queryOrg"
-          style="width: 200px;">
-          <el-option
-            v-for="item in orgOptions"
-            :key="item.code"
-            :label="'['+item.code+']'+item.name"
-            :value="item.code">
-          </el-option>
-        </el-select>
+      <el-form-item label="公告标题">
+        <el-input v-model="searchLine.noticesTitle" placeholder="输入公告标题搜索"></el-input>
       </el-form-item>
-      <el-form-item label="条线">
-        <el-select
-          v-model="prodTraceForminLine.lobId"
-          placeholder="条线"
-          clearable
-          :loading="lobIdloading"
-          filterable
-          style="width: 200px;">
-          <el-option
-            v-for="item in lobOptions"
-            :key="item.code"
-            :label="'['+item.code+']'+item.name"
-            :value="item.code">
-          </el-option>
-        </el-select>
-      </el-form-item>
-      <el-form-item label="产品">
-        <el-select
-          v-model="prodTraceForminLine.prodId"
-          placeholder="产品"
-          clearable
-          :loading="prodIdloading"
-          filterable
-          style="width: 200px;">
-          <el-option
-            v-for="item in prodOptions"
-            :key="item.code"
-            :label="'['+item.code+']'+item.name"
-            :value="item.code">
-          </el-option>
-        </el-select>
+      <el-form-item label="发布人">
+        <el-input v-model="searchLine.publisher" placeholder="输入发布人搜索"></el-input>
       </el-form-item>
       <el-form-item>
         <el-button type="primary" @click="getPage">查询</el-button>
@@ -69,10 +24,11 @@
             <font color="#FFFFFF">系统公告</font>
           </el-col>
           <el-col :span="1.3">
-            <el-button type="primary" icon="el-icon-delete" size="mini" @click="newNotices">新建公告</el-button>
+            <el-button class="el-button" type="primary" icon="el-icon-folder-add" size="mini" @click="newNotices">新建公告
+            </el-button>
           </el-col>
           <el-col :span="1.3">
-            <el-button type="primary" icon="el-icon-delete" size="mini" @click="viewDetails">查看明细
+            <el-button class="el-button" type="primary" icon="el-icon-link" size="mini" @click="viewDetails">查看明细
             </el-button>
           </el-col>
         </el-row>
@@ -134,16 +90,12 @@
 
 <script>
 
+import http from "@/utils/request"
+
 export default {
   name: "mainpage",
   data() {
     return {
-      lobOptions: [],
-      orgOptions: [],
-      prodOptions: [],
-      orgIdloading: true,
-      lobIdloading: true,
-      prodIdloading: true,
       loading: false,
       tableData: [],
       currentPage: 1,
@@ -153,15 +105,12 @@ export default {
         rows: 10,
         pageCount: 0,
       },
-      prodTraceForminLine: {
+      searchLine: {
         asOfDate: '',
-        orgId: '',
-        lobId: '',
-        prodId: '',
+        noticesTitle: '',
+        publisher: '',
       },
       loadingform: true,
-      //按钮下载链接
-      fileDownURL: '/ANNE_NEW/prodtrace/export.html',
 
     }
   },
@@ -197,56 +146,23 @@ export default {
     },
     getPage() {
       this.loading = true;
-      this.axios.post('/ANNE_NEW/system/notices/data.html', this.PageCondition, {
-          params: this.prodTraceForminLine,
-        }
-      )
-        .then(res => {
-          this.tableData = res.data.list;
-          this.PageCondition.page = res.data.pageCurrent;
-          this.PageCondition.rows = res.data.pageSize;
-          this.PageCondition.pageCount = res.data.count;
-          this.loading = false;
-        });
+      http.post('system/notices/data.html', this.PageCondition, {
+        params: this.searchLine,
+      }).then(res => {
+        this.tableData = res.data.list;
+        this.PageCondition.page = res.data.pageCurrent;
+        this.PageCondition.rows = res.data.pageSize;
+        this.PageCondition.pageCount = res.data.count;
+        this.loading = false;
+      });
     },
 
-    //获取产品信息
-    queryOrg(query) {
-      if (query !== '') {
-        this.orgIdloading = true;
-        setTimeout(() => {
-          this.axios.post('/ANNE_NEW/field/member/fieldMemberCombox.html?code=ORG_ID&search=' + query)
-            .then(res => {
-              this.orgOptions = res.data.message;
-              this.orgIdloading = false;
-            });
-
-        }, 200);
-      } else {
-        this.orgOptions = [];
-      }
-    },
-    //获取条线信息
-    queryLob() {
-      this.axios.post('/ANNE_NEW/field/member/fieldMemberCombox.html?code=LOB_ID&level=3')
-        .then(res => {
-          this.lobOptions = res.data.message;
-          this.lobIdloading = false;
-        });
-    },
-    //获取产品信息
-    queryProd() {
-      this.axios.post('/ANNE_NEW/field/member/fieldMemberCombox.html?code=PROD_ID&level=6')
-        .then(res => {
-          this.prodOptions = res.data.message;
-          this.prodIdloading = false;
-        });
-    },
     newNotices() {
       this.$router.push({
         name: 'Editor',
       })
     },
+
     viewDetails() {
       this.$router.push({
         name: 'detailpage',
@@ -256,11 +172,7 @@ export default {
       })
     },
   },
-  computed: { //用来书写计算相关方法  计算属性
-    fileDown() {  //计算方法  好处:只进行一次计算,多次使用时直接使用第一次计算之后缓存结果
-      return this.fileDownURL + '?asOfDate=' + this.prodTraceForminLine.asOfDate + '&orgId=' + this.prodTraceForminLine.orgId + '&lobId=' + this.prodTraceForminLine.lobId + '&prodId=' + this.prodTraceForminLine.prodId;
-    }
-  },
+
   created() {
     //加载页面时不加载数据
     this.getPage();
@@ -269,12 +181,19 @@ export default {
 </script>
 
 <style scoped>
+
+.el-button {
+  margin: 0 4px;
+}
+
 .el-header {
   background-color: #307ECC;
   color: #333;
   text-align: center;
-  line-height: 38px;
+  height: 40px;
+  line-height: 40px;
 }
+
 
 .el-footer {
   background-color: #EFF3F8;

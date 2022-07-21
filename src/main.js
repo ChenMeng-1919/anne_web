@@ -8,7 +8,7 @@ import 'element-ui/lib/theme-chalk/index.css'
 import elementUI from "element-ui";
 
 Vue.use(elementUI)
-Vue.prototype.axios = axios;
+//Vue.prototype.axios = axios;
 Vue.config.productionTip = false
 
 /* eslint-disable no-new */

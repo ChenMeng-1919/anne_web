@@ -1,40 +1,49 @@
 <template>
-  <div style="float: left; width: 100%;">
-    <el-form ref="form" :model="form" label-width="100px">
+  <div style="float: left; width: 100%">
+    <el-form :inline="true" ref="form" :model="form" label-width="100px">
       <el-form-item label="公告标题：">
-        <el-input v-model="form.name"></el-input>
+        <el-input style="width: 800px" v-model="form.name"></el-input>
       </el-form-item>
-      <Editor v-model="form.contentValue" :init="init" :disabled="disabled" :placeholder="placeholder"
-              @onClick="onClick"/>
+      <el-form-item>
+        <el-button class="bottonwidth" @click="submitData">提交</el-button>
+        <el-button @click="returnPage">返回</el-button>
+      </el-form-item>
+      <Editor
+        v-model="form.contentValue"
+        :init="init"
+        :disabled="disabled"
+        :placeholder="placeholder"
+        @onClick="onClick"
+      />
     </el-form>
   </div>
 </template>
 
 <script>
-import Editor from '@tinymce/tinymce-vue'
-import tinymce from 'tinymce';
-import 'tinymce/themes/silver'
-import 'tinymce/icons/default'
+import Editor from "@tinymce/tinymce-vue";
+import tinymce from "tinymce";
+import "tinymce/themes/silver";
+import "tinymce/icons/default";
 
 // 引入编辑器插件
-import 'tinymce/plugins/code'  //编辑源码
-import 'tinymce/plugins/image'  //插入编辑图片
-import 'tinymce/plugins/link'  //超链接
-import 'tinymce/plugins/preview'//预览
-import 'tinymce/plugins/table'  //表格
+import "tinymce/plugins/code"; //编辑源码
+import "tinymce/plugins/image"; //插入编辑图片
+import "tinymce/plugins/link"; //超链接
+import "tinymce/plugins/preview"; //预览
+import "tinymce/plugins/table"; //表格
 
 export default {
   components: {
-    Editor
+    Editor,
   },
   props: {
     modelValue: {
       type: String,
-      default: ""
+      default: "",
     },
     placeholder: {
       type: String,
-      default: ""
+      default: "",
     },
     height: {
       type: Number,
@@ -42,24 +51,25 @@ export default {
     },
     disabled: {
       type: Boolean,
-      default: false
+      default: false,
     },
     plugins: {
       type: [String, Array],
-      default: 'link preview table'
+      default: "link preview table",
     },
     toolbar: {
       type: [String, Array],
-      default: 'undo redo |  forecolor backcolor bold italic underline strikethrough link | formatselect fontselect fontsizeselect | \
+      default:
+        "undo redo |  forecolor backcolor bold italic underline strikethrough link | formatselect fontselect fontsizeselect | \
 					alignleft aligncenter alignright alignjustify outdent indent lineheight | bullist numlist | \
-					image table  preview | code selectall'
-    }
+					image table  preview | code selectall",
+    },
   },
   data() {
     return {
       form: {
-        name: '',
-        contentValue: this.modelValue
+        name: "",
+        contentValue: this.modelValue,
       },
       init: {
         language_url: "/static/tinymce/langs/zh_CN.js",
@@ -82,28 +92,41 @@ export default {
         images_upload_handler: (blobInfo, success, failure) => {
           const img = "data:image/jpeg;base64," + blobInfo.base64();
           success(img);
-        }
-      }
-    }
+        },
+      },
+    };
   },
   watch: {
     modelValue(val) {
-      this.contentValue = val
+      this.contentValue = val;
     },
     contentValue(val) {
-      this.$emit('update:modelValue', val);
-    }
+      this.$emit("update:modelValue", val);
+    },
   },
   mounted() {
-    tinymce.init({})
+    tinymce.init({});
   },
   methods: {
     onClick(e) {
-      this.$emit('onClick', e, tinymce)
-    }
-  }
-}
+      this.$emit("onClick", e, tinymce);
+    },
+    submitData() {
+      this.$router.push({
+        name: "mainpage",
+      });
+    },
+    returnPage() {
+      this.$router.push({
+        name: "mainpage",
+      });
+    },
+  },
+};
 </script>
 
-<style>
+<style scoped>
+.bottonwidth {
+  margin: 0 20px;
+}
 </style>
