@@ -73,11 +73,11 @@ export default {
         contentValue: this.modelValue,
       },
       init: {
-        language_url: "/static/tinymce/langs/zh_CN.js",
-        //language_url: "/ANNE_NEW/vueandele/sysnotices/tinymce/langs/zh_CN.js",
+        //language_url: "/static/tinymce/langs/zh_CN.js",
+        language_url: "/ANNE_NEW/vueandele/sysnotices/tinymce/langs/zh_CN.js",
         language: "zh_CN",
-        skin_url: "/static/tinymce/skins/ui/oxide",
-        //skin_url: "/ANNE_NEW/vueandele/sysnotices/tinymce/skins/ui/oxide",
+        //skin_url: "/static/tinymce/skins/ui/oxide",
+        skin_url: "/ANNE_NEW/vueandele/sysnotices/tinymce/skins/ui/oxide",
         menubar: false,
         height: 500,
         min_height: 770,
@@ -113,7 +113,7 @@ export default {
       this.$emit("onClick", e, tinymce);
     },
     submitData() {
-      http.post('system/notices/save', this.sysNotices).then(() => {
+      http.post('system/notices/save.html', this.sysNotices).then(() => {
         this.$router.push({
           name: "mainpage",
         });

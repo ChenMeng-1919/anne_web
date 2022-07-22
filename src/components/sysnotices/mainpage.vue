@@ -110,8 +110,6 @@ export default {
         noticesTitle: '',
         publisher: '',
       },
-      loadingform: true,
-
     }
   },
   methods: {
@@ -145,15 +143,17 @@ export default {
       this.getPage();
     },
     getPage() {
-      this.loading = true;
-      http.post('system/notices/data.html', this.PageCondition, {
+      //this.loading = true;
+      http.post('/system/notices/data.html', this.PageCondition, {
         params: this.searchLine,
       }).then(res => {
-        this.tableData = res.data.list;
-        this.PageCondition.page = res.data.pageCurrent;
-        this.PageCondition.rows = res.data.pageSize;
-        this.PageCondition.pageCount = res.data.count;
+        console.log(res)
+        this.tableData = res.list;
+        this.PageCondition.page = res.pageCurrent;
+        this.PageCondition.rows = res.pageSize;
+        this.PageCondition.pageCount = res.count;
         this.loading = false;
+        console.log(this.loading);
       });
     },
 

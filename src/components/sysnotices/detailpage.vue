@@ -24,8 +24,8 @@ export default {
   },
   created() {
     this.id = this.$route.params.id;
-    http.get('system/notices/getcontent', this.id).then((res) => {
-      this.sysNotices = res.data()
+    http.get('system/notices/getcontent.html', this.id).then((res) => {
+      this.sysNotices = res;
     })
   }
 }

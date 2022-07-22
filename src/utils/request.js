@@ -1,13 +1,19 @@
 import axios from 'axios';
+
 //import { ElNotification, ElMessageBox } from 'element-ui';
 //import sysConfig from "@/config";
 //import tool from '@/utils/tool';
 import router from '@/router';
 
-axios.defaults.baseURL = '/ANNE_NEW/'
+axios.defaults.baseURL = '/api'
+//axios.defaults.baseURL = 'http://localhost:8080/ANNE_NEW/'
+
+// 全局设置 axios 发送请求带上cookie
+//axios.defaults.withCredentials = true
 
 //axios.defaults.timeout = sysConfig.TIMEOUT
 axios.defaults.timeout = 10000
+
 
 // HTTP request 拦截器
 /*axios.interceptors.request.use(
@@ -73,129 +79,129 @@ axios.defaults.timeout = 10000
 
 var http = {
 
-	/** get 请求
-	 * @param  {接口地址} url
-	 * @param  {请求参数} params
-	 * @param  {参数} config
-	 */
-	get: function(url, params={}, config={}) {
-		return new Promise((resolve, reject) => {
-			axios({
-				method: 'get',
-				url: url,
-				params: params,
-				...config
-			}).then((response) => {
-				resolve(response.data);
-			}).catch((error) => {
-				reject(error);
-			})
-		})
-	},
+  /** get 请求
+   * @param  {接口地址} url
+   * @param  {请求参数} params
+   * @param  {参数} config
+   */
+  get: function (url, params = {}, config = {}) {
+    return new Promise((resolve, reject) => {
+      axios({
+        method: 'get',
+        url: url,
+        params: params,
+        ...config
+      }).then((response) => {
+        resolve(response.data);
+      }).catch((error) => {
+        reject(error);
+      })
+    })
+  },
 
-	/** post 请求
-	 * @param  {接口地址} url
-	 * @param  {请求参数} data
-	 * @param  {参数} config
-	 */
-	post: function(url, data={}, config={}) {
-		return new Promise((resolve, reject) => {
-			axios({
-				method: 'post',
-				url: url,
-				data: data,
-				...config
-			}).then((response) => {
-				resolve(response.data);
-			}).catch((error) => {
-				reject(error);
-			})
-		})
-	},
+  /** post 请求
+   * @param  {接口地址} url
+   * @param  {请求参数} data
+   * @param  {参数} config
+   */
+  post: function (url, data = {}, config = {}) {
+    return new Promise((resolve, reject) => {
+      axios({
+        method: 'post',
+        url: url,
+        data: data,
+        ...config
+      }).then((response) => {
+        resolve(response.data);
+      }).catch((error) => {
+        reject(error);
+      })
+    })
+  },
 
-	/** put 请求
-	 * @param  {接口地址} url
-	 * @param  {请求参数} data
-	 * @param  {参数} config
-	 */
-	put: function(url, data={}, config={}) {
-		return new Promise((resolve, reject) => {
-			axios({
-				method: 'put',
-				url: url,
-				data: data,
-				...config
-			}).then((response) => {
-				resolve(response.data);
-			}).catch((error) => {
-				reject(error);
-			})
-		})
-	},
+  /** put 请求
+   * @param  {接口地址} url
+   * @param  {请求参数} data
+   * @param  {参数} config
+   */
+  put: function (url, data = {}, config = {}) {
+    return new Promise((resolve, reject) => {
+      axios({
+        method: 'put',
+        url: url,
+        data: data,
+        ...config
+      }).then((response) => {
+        resolve(response.data);
+      }).catch((error) => {
+        reject(error);
+      })
+    })
+  },
 
-	/** patch 请求
-	 * @param  {接口地址} url
-	 * @param  {请求参数} data
-	 * @param  {参数} config
-	 */
-	patch: function(url, data={}, config={}) {
-		return new Promise((resolve, reject) => {
-			axios({
-				method: 'patch',
-				url: url,
-				data: data,
-				...config
-			}).then((response) => {
-				resolve(response.data);
-			}).catch((error) => {
-				reject(error);
-			})
-		})
-	},
+  /** patch 请求
+   * @param  {接口地址} url
+   * @param  {请求参数} data
+   * @param  {参数} config
+   */
+  patch: function (url, data = {}, config = {}) {
+    return new Promise((resolve, reject) => {
+      axios({
+        method: 'patch',
+        url: url,
+        data: data,
+        ...config
+      }).then((response) => {
+        resolve(response.data);
+      }).catch((error) => {
+        reject(error);
+      })
+    })
+  },
 
-	/** delete 请求
-	 * @param  {接口地址} url
-	 * @param  {请求参数} data
-	 * @param  {参数} config
-	 */
-	delete: function(url, data={}, config={}) {
-		return new Promise((resolve, reject) => {
-			axios({
-				method: 'delete',
-				url: url,
-				data: data,
-				...config
-			}).then((response) => {
-				resolve(response.data);
-			}).catch((error) => {
-				reject(error);
-			})
-		})
-	},
+  /** delete 请求
+   * @param  {接口地址} url
+   * @param  {请求参数} data
+   * @param  {参数} config
+   */
+  delete: function (url, data = {}, config = {}) {
+    return new Promise((resolve, reject) => {
+      axios({
+        method: 'delete',
+        url: url,
+        data: data,
+        ...config
+      }).then((response) => {
+        resolve(response.data);
+      }).catch((error) => {
+        reject(error);
+      })
+    })
+  },
 
-	/** jsonp 请求
-	 * @param  {接口地址} url
-	 * @param  {JSONP回调函数名称} name
-	 */
-	jsonp: function(url, name='jsonp'){
-		return new Promise((resolve) => {
-			var script = document.createElement('script')
-			var _id = `jsonp${Math.ceil(Math.random() * 1000000)}`
-			script.id = _id
-			script.type = 'text/javascript'
-			script.src = url
-			window[name] =(response) => {
-				resolve(response)
-				document.getElementsByTagName('head')[0].removeChild(script)
-				try {
-					delete window[name];
-				}catch(e){
-					window[name] = undefined;
-				}
-			}
-			document.getElementsByTagName('head')[0].appendChild(script)
-		})
-	}
+  /** jsonp 请求
+   * @param  {接口地址} url
+   * @param  {JSONP回调函数名称} name
+   */
+  jsonp: function (url, name = 'jsonp') {
+    return new Promise((resolve) => {
+      var script = document.createElement('script')
+      var _id = `jsonp${Math.ceil(Math.random() * 1000000)}`
+      script.id = _id
+      script.type = 'text/javascript'
+      script.src = url
+      window[name] = (response) => {
+        resolve(response)
+        document.getElementsByTagName('head')[0].removeChild(script)
+        try {
+          delete window[name];
+        } catch (e) {
+          window[name] = undefined;
+        }
+      }
+      document.getElementsByTagName('head')[0].appendChild(script)
+    })
+  }
 }
 
 export default http;
