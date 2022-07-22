@@ -1,15 +1,15 @@
 <template>
   <div style="float: left; width: 100%">
-    <el-form :inline="true" ref="form" :model="form" label-width="100px">
+    <el-form :inline="true" ref="form" :model="sysNotices" label-width="100px">
       <el-form-item label="公告标题：">
-        <el-input style="width: 800px" v-model="form.name"></el-input>
+        <el-input style="width: 800px" v-model="sysNotices.noticesTitle"></el-input>
       </el-form-item>
       <el-form-item>
         <el-button class="bottonwidth" @click="submitData">提交</el-button>
         <el-button @click="returnPage">返回</el-button>
       </el-form-item>
       <Editor
-        v-model="form.contentValue"
+        v-model="sysNotices.contentValue"
         :init="init"
         :disabled="disabled"
         :placeholder="placeholder"
@@ -20,6 +20,7 @@
 </template>
 
 <script>
+import http from "../../utils/request";
 import Editor from "@tinymce/tinymce-vue";
 import tinymce from "tinymce";
 import "tinymce/themes/silver";
@@ -67,8 +68,8 @@ export default {
   },
   data() {
     return {
-      form: {
-        name: "",
+      sysNotices: {
+        noticesTitle: "",
         contentValue: this.modelValue,
       },
       init: {
@@ -98,7 +99,7 @@ export default {
   },
   watch: {
     modelValue(val) {
-      this.contentValue = val;
+      this.sysNotices.contentValue = val;
     },
     contentValue(val) {
       this.$emit("update:modelValue", val);
@@ -112,8 +113,12 @@ export default {
       this.$emit("onClick", e, tinymce);
     },
     submitData() {
-      this.$router.push({
-        name: "mainpage",
+      http.post('system/notices/save', this.sysNotices).then(() => {
+        this.$router.push({
+          name: "mainpage",
+        });
+      }).catch(() => {
+        console.log("富文本保存异常")
       });
     },
     returnPage() {

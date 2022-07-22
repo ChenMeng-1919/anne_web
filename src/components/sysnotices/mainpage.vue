@@ -167,7 +167,7 @@ export default {
       this.$router.push({
         name: 'detailpage',
         params: {
-          headRowId: this.currentRow.rowId
+          id: this.currentRow.id
         }
       })
     },

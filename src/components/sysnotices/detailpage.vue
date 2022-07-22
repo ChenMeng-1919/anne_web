@@ -1,19 +1,32 @@
 <template>
   <div>
     <h2>公告标题</h2>
-    <h3>这里是公告标题</h3>
+    <h3>{{ sysNotices.noticesTitle }}</h3>
     <h2>公告内容</h2>
-    <div v-html="message"></div>
+    <div v-html="sysNotices.contentValue"></div>
   </div>
 </template>
 
 <script>
+import http from "../../utils/request";
+
 export default {
   name: "detailpage",
   data() {
     return {
-      message: '<h3>这里是公告内容</h3>'
+      id: '',
+      sysNotices: {
+        noticesTitle: '',
+        contentValue: ''
+      }
+
     }
+  },
+  created() {
+    this.id = this.$route.params.id;
+    http.get('system/notices/getcontent', this.id).then((res) => {
+      this.sysNotices = res.data()
+    })
   }
 }
 </script>
